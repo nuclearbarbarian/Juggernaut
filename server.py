@@ -30,7 +30,7 @@ class JuggernautHandler(SimpleHTTPRequestHandler):
             else:
                 self.wfile.write(b'{}')
             return
-        return super().do_GET(self)
+        return super().do_GET()
 
     def do_POST(self):
         if self.path == '/api/data':
