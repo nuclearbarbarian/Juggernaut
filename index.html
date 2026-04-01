@@ -1,0 +1,1501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Juggernaut Method — Training Log</title>
+<style>
+/* ═══════════════════════════════════════════════════════════
+   PENNEY DESIGN SYSTEM — CSS Foundation
+   ═══════════════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;700&display=swap');
+
+:root {
+  /* Colors */
+  --color-ink: #1A1A1A;
+  --color-newsprint: #F5F2E8;
+  --color-paper: #FDFCF9;
+  --color-warm-gray: #9C9788;
+  --color-blue: #2B4B6F;
+  --color-red: #8B2B2B;
+  --color-yellow: #C4A035;
+  --color-green: #3D5C3D;
+  --color-gray-90: #2D2D2D;
+  --color-gray-70: #5C5C5C;
+  --color-gray-50: #8A8A8A;
+  --color-gray-30: #B8B8B8;
+  --color-gray-15: #DCDCDC;
+
+  /* Typography */
+  --font-serif: 'Source Serif 4', 'Charter', 'Georgia', serif;
+  --font-mono: 'IBM Plex Mono', 'Consolas', monospace;
+
+  /* Spacing */
+  --space-unit: 6px;
+  --space-xs: 6px;
+  --space-sm: 12px;
+  --space-md: 18px;
+  --space-lg: 24px;
+  --space-xl: 36px;
+  --space-2xl: 48px;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-serif);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--color-ink);
+  background: var(--color-newsprint);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Layout ── */
+
+.container {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: var(--space-lg) var(--space-md);
+}
+
+/* ── App Header ── */
+
+.app-header {
+  text-align: center;
+  padding: var(--space-lg) 0;
+  border-top: 2px solid var(--color-ink);
+  border-bottom: 2px solid var(--color-ink);
+  margin-bottom: var(--space-xl);
+}
+
+.app-header h1 {
+  font-family: var(--font-serif);
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.app-header .subtitle {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-warm-gray);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+/* ── Navigation ── */
+
+.nav-bar {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--color-ink);
+  margin-bottom: var(--space-lg);
+}
+
+.nav-btn {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  background: none;
+  border: none;
+  padding: var(--space-sm) var(--space-md);
+  cursor: pointer;
+  color: var(--color-warm-gray);
+  border-bottom: 2px solid transparent;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.nav-btn:hover {
+  color: var(--color-ink);
+}
+
+.nav-btn.active {
+  color: var(--color-ink);
+  border-bottom-color: var(--color-ink);
+}
+
+/* ── Screens ── */
+
+.screen { display: none; }
+.screen.active { display: block; }
+
+/* ── Setup Screen ── */
+
+.setup-section {
+  background: var(--color-paper);
+  border: 1px solid var(--color-gray-30);
+  padding: var(--space-lg);
+  margin-bottom: var(--space-lg);
+}
+
+.setup-section h2 {
+  font-size: 15px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: var(--space-md);
+  padding-bottom: var(--space-xs);
+  border-bottom: 1px solid var(--color-gray-30);
+}
+
+.form-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-sm);
+}
+
+.form-row label {
+  font-family: var(--font-serif);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.form-row input[type="number"] {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  width: 100px;
+  padding: 6px 10px;
+  border: 1px solid var(--color-gray-30);
+  background: var(--color-newsprint);
+  color: var(--color-ink);
+  text-align: right;
+}
+
+.form-row input[type="number"]:focus {
+  outline: none;
+  border-color: var(--color-ink);
+}
+
+.form-row .computed {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--color-warm-gray);
+  min-width: 80px;
+  text-align: right;
+}
+
+.radio-group {
+  margin-bottom: var(--space-sm);
+}
+
+.radio-group label {
+  display: block;
+  font-size: 14px;
+  margin-bottom: 6px;
+  cursor: pointer;
+}
+
+.radio-group input[type="radio"] {
+  margin-right: 8px;
+}
+
+.hint {
+  font-size: 12px;
+  font-style: italic;
+  color: var(--color-warm-gray);
+  margin-top: 4px;
+}
+
+/* ── Buttons ── */
+
+.btn {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 10px 20px;
+  border: 1px solid var(--color-ink);
+  background: var(--color-ink);
+  color: var(--color-newsprint);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.btn:hover {
+  background: var(--color-gray-90);
+}
+
+.btn-outline {
+  background: transparent;
+  color: var(--color-ink);
+}
+
+.btn-outline:hover {
+  background: var(--color-ink);
+  color: var(--color-newsprint);
+}
+
+.btn-danger {
+  border-color: var(--color-red);
+  background: var(--color-red);
+  color: var(--color-paper);
+}
+
+.btn-danger:hover {
+  background: #6e2222;
+}
+
+.btn-sm {
+  font-size: 10px;
+  padding: 6px 12px;
+}
+
+/* ── Training Screen ── */
+
+.wave-header {
+  text-align: center;
+  margin-bottom: var(--space-lg);
+}
+
+.wave-header h2 {
+  font-size: 20px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.wave-header .wave-detail {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-warm-gray);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: 4px;
+}
+
+.phase-tabs {
+  display: flex;
+  gap: 0;
+  margin-bottom: var(--space-lg);
+  border: 1px solid var(--color-gray-30);
+}
+
+.phase-tab {
+  flex: 1;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: var(--color-paper);
+  border: none;
+  border-right: 1px solid var(--color-gray-30);
+  padding: 10px 8px;
+  cursor: pointer;
+  color: var(--color-warm-gray);
+  transition: background 0.15s, color 0.15s;
+}
+
+.phase-tab:last-child { border-right: none; }
+
+.phase-tab:hover {
+  color: var(--color-ink);
+}
+
+.phase-tab.active {
+  background: var(--color-ink);
+  color: var(--color-newsprint);
+}
+
+.phase-tab.completed-phase {
+  color: var(--color-green);
+}
+
+.phase-tab.completed-phase.active {
+  color: var(--color-newsprint);
+}
+
+.phase-tab.future-phase {
+  color: var(--color-gray-30);
+  font-style: italic;
+}
+
+/* ── Day Cards ── */
+
+.day-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-md);
+  margin-bottom: var(--space-lg);
+}
+
+.day-card {
+  background: var(--color-paper);
+  border: 1px solid var(--color-gray-30);
+}
+
+.day-card-header {
+  padding: var(--space-sm) var(--space-sm);
+  border-bottom: 1px solid var(--color-gray-30);
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.day-card-header h3 {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.day-card-header .working-max {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--color-warm-gray);
+}
+
+.set-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.set-table th {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-warm-gray);
+  text-align: left;
+  padding: 6px var(--space-sm);
+  border-bottom: 1px solid var(--color-gray-15);
+}
+
+.set-table th:last-child { text-align: right; }
+
+.set-table td {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  padding: 5px var(--space-sm);
+  border-bottom: 1px solid var(--color-gray-15);
+}
+
+.set-table td:last-child { text-align: right; }
+
+.set-table tr:last-child td { border-bottom: none; }
+
+.set-table .amap-row {
+  background: #f9f0ef;
+}
+
+.set-table .amap-row td {
+  color: var(--color-red);
+  font-weight: 700;
+}
+
+.set-table .warmup-row td {
+  color: var(--color-gray-50);
+  font-size: 12px;
+}
+
+.amap-input {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  width: 50px;
+  padding: 3px 6px;
+  border: 1px solid var(--color-red);
+  background: var(--color-paper);
+  color: var(--color-red);
+  text-align: center;
+  font-weight: 700;
+}
+
+.amap-input:focus {
+  outline: none;
+  border-color: var(--color-ink);
+  color: var(--color-ink);
+}
+
+.amap-logged {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--color-red);
+  font-weight: 700;
+}
+
+.projected-max {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--color-warm-gray);
+  padding: 4px var(--space-sm) 8px;
+  display: block;
+}
+
+/* ── Progression ── */
+
+.progression-box {
+  background: var(--color-paper);
+  border: 2px solid var(--color-ink);
+  padding: var(--space-lg);
+  margin-bottom: var(--space-lg);
+  text-align: center;
+}
+
+.progression-box h3 {
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: var(--space-sm);
+}
+
+.progression-box .new-maxes {
+  margin: var(--space-md) 0;
+}
+
+.progression-box .max-line {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  margin-bottom: 4px;
+}
+
+.progression-box .max-line .delta {
+  color: var(--color-green);
+}
+
+/* ── Settings ── */
+
+.settings-group {
+  background: var(--color-paper);
+  border: 1px solid var(--color-gray-30);
+  padding: var(--space-lg);
+  margin-bottom: var(--space-lg);
+}
+
+.settings-group h3 {
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: var(--space-md);
+  padding-bottom: var(--space-xs);
+  border-bottom: 1px solid var(--color-gray-30);
+}
+
+.settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-sm);
+  gap: var(--space-sm);
+}
+
+.settings-row label {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.settings-row input[type="number"] {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  width: 90px;
+  padding: 5px 8px;
+  border: 1px solid var(--color-gray-30);
+  background: var(--color-newsprint);
+  color: var(--color-ink);
+  text-align: right;
+}
+
+.settings-row input[type="number"]:focus {
+  outline: none;
+  border-color: var(--color-ink);
+}
+
+.btn-row {
+  display: flex;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+  margin-top: var(--space-md);
+}
+
+/* ── History ── */
+
+.history-lift {
+  background: var(--color-paper);
+  border: 1px solid var(--color-gray-30);
+  margin-bottom: var(--space-lg);
+}
+
+.history-lift-header {
+  padding: var(--space-sm);
+  border-bottom: 1px solid var(--color-gray-30);
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.history-lift-header h3 {
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.history-lift-header .best-est {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-green);
+}
+
+.history-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.history-table th {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-warm-gray);
+  text-align: left;
+  padding: 6px var(--space-sm);
+  border-bottom: 1px solid var(--color-gray-15);
+}
+
+.history-table td {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  padding: 5px var(--space-sm);
+  border-bottom: 1px solid var(--color-gray-15);
+}
+
+.history-table .best-row td {
+  color: var(--color-green);
+  font-weight: 700;
+}
+
+.empty-state {
+  text-align: center;
+  padding: var(--space-2xl) var(--space-lg);
+  color: var(--color-warm-gray);
+  font-style: italic;
+}
+
+/* ── Responsive ── */
+
+@media (max-width: 600px) {
+  .container { padding: var(--space-md) var(--space-sm); }
+  .day-cards { grid-template-columns: 1fr; }
+  .app-header h1 { font-size: 20px; }
+  .phase-tab { font-size: 9px; padding: 8px 4px; }
+  .nav-btn { padding: var(--space-sm) var(--space-sm); font-size: 10px; }
+  .form-row { flex-wrap: wrap; gap: 6px; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- ═══ APP HEADER ═══ -->
+  <header class="app-header">
+    <h1>Juggernaut Method</h1>
+    <div class="subtitle">Training Log</div>
+  </header>
+
+  <!-- ═══ NAVIGATION ═══ -->
+  <nav class="nav-bar" id="mainNav" style="display:none;">
+    <button class="nav-btn active" data-screen="training">Training</button>
+    <button class="nav-btn" data-screen="history">Records</button>
+    <button class="nav-btn" data-screen="settings">Settings</button>
+  </nav>
+
+  <!-- ═══════════════════════════════════════════════════════
+       SETUP SCREEN
+       ═══════════════════════════════════════════════════════ -->
+  <div id="setupScreen" class="screen active">
+
+    <div class="setup-section">
+      <h2>Enter Your 1-Rep Maxes</h2>
+      <p class="hint" style="margin-bottom:var(--space-md);">Use a recent 1RM or 3RM from the past six weeks. Working max will be calculated at 90%.</p>
+
+      <div class="form-row">
+        <label>Bench Press</label>
+        <div style="display:flex;align-items:center;gap:var(--space-sm);">
+          <input type="number" id="setup-bench" min="0" step="5" placeholder="lbs">
+          <span class="computed" id="wm-bench">WM: —</span>
+        </div>
+      </div>
+      <div class="form-row">
+        <label>Squat</label>
+        <div style="display:flex;align-items:center;gap:var(--space-sm);">
+          <input type="number" id="setup-squat" min="0" step="5" placeholder="lbs">
+          <span class="computed" id="wm-squat">WM: —</span>
+        </div>
+      </div>
+      <div class="form-row">
+        <label>Military Press</label>
+        <div style="display:flex;align-items:center;gap:var(--space-sm);">
+          <input type="number" id="setup-military" min="0" step="5" placeholder="lbs">
+          <span class="computed" id="wm-military">WM: —</span>
+        </div>
+      </div>
+      <div class="form-row">
+        <label>Deadlift</label>
+        <div style="display:flex;align-items:center;gap:var(--space-sm);">
+          <input type="number" id="setup-deadlift" min="0" step="5" placeholder="lbs">
+          <span class="computed" id="wm-deadlift">WM: —</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="setup-section">
+      <h2>Training Frequency</h2>
+      <p class="hint" style="margin-bottom:var(--space-sm);">Controls deload programming. 2x/week skips the deload phase per the book's recommendation. All four lifts are always shown — you decide which sessions to combine.</p>
+      <div class="radio-group">
+        <label><input type="radio" name="frequency" value="4" checked> 4 Days / Week — one lift per day, includes deload</label>
+        <label><input type="radio" name="frequency" value="3"> 3 Days / Week — includes deload</label>
+        <label><input type="radio" name="frequency" value="2"> 2 Days / Week — no deload between waves</label>
+      </div>
+    </div>
+
+    <div class="setup-section">
+      <h2>Increment Per Rep</h2>
+      <p class="hint" style="margin-bottom:var(--space-sm);">Used to adjust working max after each wave's Realization phase.</p>
+      <div class="radio-group">
+        <label><input type="radio" name="increment" value="big" checked> Big — 2.5 lbs upper / 5 lbs lower</label>
+        <label><input type="radio" name="increment" value="small"> Small — 1.25 lbs upper / 2.5 lbs lower</label>
+      </div>
+    </div>
+
+    <div style="text-align:center; margin-top:var(--space-lg);">
+      <button class="btn" id="startBtn">Begin Training</button>
+    </div>
+
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════
+       TRAINING SCREEN
+       ═══════════════════════════════════════════════════════ -->
+  <div id="trainingScreen" class="screen">
+    <div class="wave-header">
+      <h2 id="waveTitle">10's Wave</h2>
+      <div class="wave-detail" id="waveDetail">Wave 1 of 4 · Cycle 1</div>
+    </div>
+
+    <div class="phase-tabs" id="phaseTabs">
+      <button class="phase-tab active" data-phase="0">Accumulation</button>
+      <button class="phase-tab" data-phase="1">Intensification</button>
+      <button class="phase-tab" data-phase="2">Realization</button>
+      <button class="phase-tab" data-phase="3">Deload</button>
+    </div>
+
+    <div class="day-cards" id="dayCards">
+      <!-- Populated by JS -->
+    </div>
+
+    <div id="progressionArea"></div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════
+       HISTORY SCREEN
+       ═══════════════════════════════════════════════════════ -->
+  <div id="historyScreen" class="screen">
+    <h2 style="font-size:18px;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:var(--space-lg);text-align:center;">Personal Records</h2>
+    <div id="historyContent"></div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════
+       SETTINGS SCREEN
+       ═══════════════════════════════════════════════════════ -->
+  <div id="settingsScreen" class="screen">
+    <h2 style="font-size:18px;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:var(--space-lg);text-align:center;">Settings</h2>
+
+    <div class="settings-group">
+      <h3>Working Maxes</h3>
+      <div class="settings-row">
+        <label>Bench Press</label>
+        <input type="number" id="settings-bench" min="0" step="2.5">
+      </div>
+      <div class="settings-row">
+        <label>Squat</label>
+        <input type="number" id="settings-squat" min="0" step="5">
+      </div>
+      <div class="settings-row">
+        <label>Military Press</label>
+        <input type="number" id="settings-military" min="0" step="2.5">
+      </div>
+      <div class="settings-row">
+        <label>Deadlift</label>
+        <input type="number" id="settings-deadlift" min="0" step="5">
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-sm btn-outline" id="saveMaxesBtn">Save Maxes</button>
+      </div>
+    </div>
+
+    <div class="settings-group">
+      <h3>Training Options</h3>
+      <div class="settings-row">
+        <label>Frequency</label>
+        <select id="settings-frequency" style="font-family:var(--font-mono);font-size:12px;padding:5px 8px;border:1px solid var(--color-gray-30);background:var(--color-newsprint);">
+          <option value="4">4 Days / Week</option>
+          <option value="3">3 Days / Week</option>
+          <option value="2">2 Days / Week</option>
+        </select>
+      </div>
+      <div class="settings-row">
+        <label>Increment</label>
+        <select id="settings-increment" style="font-family:var(--font-mono);font-size:12px;padding:5px 8px;border:1px solid var(--color-gray-30);background:var(--color-newsprint);">
+          <option value="big">Big (2.5 / 5)</option>
+          <option value="small">Small (1.25 / 2.5)</option>
+        </select>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-sm btn-outline" id="saveOptionsBtn">Save Options</button>
+      </div>
+    </div>
+
+    <div class="settings-group">
+      <h3>Data Backup</h3>
+      <p class="hint" style="margin-bottom:var(--space-sm);">All data is stored in your browser's localStorage. Export regularly to avoid data loss.</p>
+      <div class="btn-row">
+        <button class="btn btn-sm btn-outline" id="exportBtn">Export JSON</button>
+        <button class="btn btn-sm btn-outline" id="importBtn">Import JSON</button>
+        <input type="file" id="importFile" accept=".json" style="display:none;">
+      </div>
+    </div>
+
+    <div class="settings-group">
+      <h3>Reset</h3>
+      <div class="btn-row">
+        <button class="btn btn-sm btn-outline" data-reset="bench">Reset Bench to 90%</button>
+        <button class="btn btn-sm btn-outline" data-reset="squat">Reset Squat to 90%</button>
+        <button class="btn btn-sm btn-outline" data-reset="military">Reset Military to 90%</button>
+        <button class="btn btn-sm btn-outline" data-reset="deadlift">Reset Deadlift to 90%</button>
+      </div>
+      <div class="btn-row" style="margin-top:var(--space-lg);">
+        <button class="btn btn-sm btn-danger" id="resetAllBtn">Reset All Data</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════
+   JUGGERNAUT METHOD — ENGINE
+   ═══════════════════════════════════════════════════════════ */
+
+// ── Constants ──
+
+const LIFTS = ['bench', 'squat', 'military', 'deadlift'];
+const LIFT_NAMES = { bench: 'Bench Press', squat: 'Squat', military: 'Military Press', deadlift: 'Deadlift' };
+const WAVE_NAMES = ["10's Wave", "8's Wave", "5's Wave", "3's Wave"];
+const PHASE_NAMES = ['Accumulation', 'Intensification', 'Realization', 'Deload'];
+const WAVE_STANDARDS = [10, 8, 5, 3]; // rep standard per wave
+
+// Upper body: bench, military. Lower body: squat, deadlift.
+function isUpper(lift) { return lift === 'bench' || lift === 'military'; }
+function hasDeload() { return state.frequency !== 2; }
+
+function getIncrement(lift, option) {
+  if (option === 'big') return isUpper(lift) ? 2.5 : 5;
+  return isUpper(lift) ? 1.25 : 2.5;
+}
+
+// Round to nearest 5 (for plate weights and general WM)
+function round5(n) { return Math.round(n / 5) * 5; }
+
+// Round to nearest 2.5 (for small-increment WM adjustments)
+function round2_5(n) { return Math.round(n / 2.5) * 2.5; }
+
+// Round WM adjustment: uses round2_5 when small increments selected, round5 otherwise
+function roundWM(n) {
+  return state.incrementOption === 'small' ? round2_5(n) : round5(n);
+}
+
+// Projected max: (Weight x Reps x .033) + Weight (Epley formula)
+// Capped at 10 reps for estimation accuracy — Epley overpredicts above ~10 reps
+function projectedMax(weight, reps) {
+  if (reps <= 0) return weight;
+  const cappedReps = Math.min(reps, 10);
+  return Math.round(weight * cappedReps * 0.033 + weight);
+}
+
+// ── Percentage Tables (from the book, page 12) ──
+// Format: array of { pct, sets, reps, amap? }
+// Note: 10s Accumulation changed to 10x5 per user's request (CWS later edition)
+
+const PROGRAM = {
+  // ── 10s WAVE ──
+  accumulation: [
+    // 10s wave
+    [{ pct: 0.60, sets: 10, reps: 5 }],
+    // 8s wave
+    [{ pct: 0.65, sets: 5, reps: 8 }],
+    // 5s wave
+    [{ pct: 0.70, sets: 6, reps: 5 }],
+    // 3s wave
+    [{ pct: 0.75, sets: 7, reps: 3 }],
+  ],
+  intensification: [
+    // 10s wave: 55%x5, 62.5%x5, 67.5%x3x10
+    [{ pct: 0.55, sets: 1, reps: 5 }, { pct: 0.625, sets: 1, reps: 5 }, { pct: 0.675, sets: 3, reps: 10 }],
+    // 8s wave: 60%x3, 67.5%x3, 72.5%x3x8
+    [{ pct: 0.60, sets: 1, reps: 3 }, { pct: 0.675, sets: 1, reps: 3 }, { pct: 0.725, sets: 3, reps: 8 }],
+    // 5s wave: 65%x2, 72.5%x2, 77.5%x4x5
+    [{ pct: 0.65, sets: 1, reps: 2 }, { pct: 0.725, sets: 1, reps: 2 }, { pct: 0.775, sets: 4, reps: 5 }],
+    // 3s wave: 70%x1, 77.5%x1, 82.5%x5x3
+    [{ pct: 0.70, sets: 1, reps: 1 }, { pct: 0.775, sets: 1, reps: 1 }, { pct: 0.825, sets: 5, reps: 3 }],
+  ],
+  realization: [
+    // 10s wave: 50%x5, 60%x3, 70%x1, 75%xAMAP
+    [{ pct: 0.50, sets: 1, reps: 5 }, { pct: 0.60, sets: 1, reps: 3 }, { pct: 0.70, sets: 1, reps: 1 }, { pct: 0.75, sets: 1, reps: 'AMAP', amap: true }],
+    // 8s wave: 50%x5, 60%x3, 70%x2, 75%x1, 80%xAMAP
+    [{ pct: 0.50, sets: 1, reps: 5 }, { pct: 0.60, sets: 1, reps: 3 }, { pct: 0.70, sets: 1, reps: 2 }, { pct: 0.75, sets: 1, reps: 1 }, { pct: 0.80, sets: 1, reps: 'AMAP', amap: true }],
+    // 5s wave: 50%x5, 60%x3, 70%x2, 75%x1, 80%x1, 85%xAMAP
+    [{ pct: 0.50, sets: 1, reps: 5 }, { pct: 0.60, sets: 1, reps: 3 }, { pct: 0.70, sets: 1, reps: 2 }, { pct: 0.75, sets: 1, reps: 1 }, { pct: 0.80, sets: 1, reps: 1 }, { pct: 0.85, sets: 1, reps: 'AMAP', amap: true }],
+    // 3s wave: 50%x5, 60%x3, 70%x2, 75%x1, 80%x1, 85%x1, 90%xAMAP
+    [{ pct: 0.50, sets: 1, reps: 5 }, { pct: 0.60, sets: 1, reps: 3 }, { pct: 0.70, sets: 1, reps: 2 }, { pct: 0.75, sets: 1, reps: 1 }, { pct: 0.80, sets: 1, reps: 1 }, { pct: 0.85, sets: 1, reps: 1 }, { pct: 0.90, sets: 1, reps: 'AMAP', amap: true }],
+  ],
+  deload: [
+    // Same for all waves: 40%x5, 50%x5, 60%x5
+    [{ pct: 0.40, sets: 1, reps: 5 }, { pct: 0.50, sets: 1, reps: 5 }, { pct: 0.60, sets: 1, reps: 5 }],
+    [{ pct: 0.40, sets: 1, reps: 5 }, { pct: 0.50, sets: 1, reps: 5 }, { pct: 0.60, sets: 1, reps: 5 }],
+    [{ pct: 0.40, sets: 1, reps: 5 }, { pct: 0.50, sets: 1, reps: 5 }, { pct: 0.60, sets: 1, reps: 5 }],
+    [{ pct: 0.40, sets: 1, reps: 5 }, { pct: 0.50, sets: 1, reps: 5 }, { pct: 0.60, sets: 1, reps: 5 }],
+  ],
+};
+
+const PHASE_KEYS = ['accumulation', 'intensification', 'realization', 'deload'];
+
+// ── State ──
+
+const DEFAULT_STATE = {
+  lifts: {
+    bench: { rm: 0, wm: 0 },
+    squat: { rm: 0, wm: 0 },
+    military: { rm: 0, wm: 0 },
+    deadlift: { rm: 0, wm: 0 },
+  },
+  currentWave: 0,
+  currentPhase: 0,
+  cycle: 1,
+  frequency: 4,
+  incrementOption: 'big',
+  amrapLog: {},   // key: "cycle-wave-lift" → { weight, reps, projectedMax }
+  prHistory: { bench: [], squat: [], military: [], deadlift: [] },
+  wmHistory: [],
+  setup: false,
+};
+
+let state = loadState();
+
+// Schema migration: merge saved data with defaults to fill missing keys
+function migrateState(saved) {
+  const merged = JSON.parse(JSON.stringify(DEFAULT_STATE));
+  for (const key of Object.keys(merged)) {
+    if (key === 'lifts') {
+      for (const lift of LIFTS) {
+        if (saved.lifts && saved.lifts[lift]) {
+          merged.lifts[lift] = { ...merged.lifts[lift], ...saved.lifts[lift] };
+        }
+      }
+    } else if (key === 'prHistory') {
+      if (saved.prHistory) {
+        for (const lift of LIFTS) {
+          if (saved.prHistory[lift]) merged.prHistory[lift] = saved.prHistory[lift];
+        }
+      }
+    } else if (saved[key] !== undefined) {
+      merged[key] = saved[key];
+    }
+  }
+  return merged;
+}
+
+// Load: try localStorage first (instant), then async-load from server file
+function loadState() {
+  try {
+    const raw = localStorage.getItem('juggernaut_state');
+    if (raw) return migrateState(JSON.parse(raw));
+  } catch (e) {}
+  return JSON.parse(JSON.stringify(DEFAULT_STATE));
+}
+
+// On startup, also fetch from server file — if it has data and localStorage doesn't,
+// adopt the server file as the source of truth
+async function syncFromServer() {
+  try {
+    const resp = await fetch('/api/data');
+    if (!resp.ok) return;
+    const serverData = await resp.json();
+    if (serverData && serverData.setup) {
+      // Server file has real data
+      if (!state.setup) {
+        // localStorage was empty — adopt server data
+        state = migrateState(serverData);
+        localStorage.setItem('juggernaut_state', JSON.stringify(state));
+        showApp();
+      }
+    }
+  } catch (e) {
+    // Server not running or no API — that's fine, localStorage is primary
+    console.log('File sync unavailable — using localStorage only.');
+  }
+}
+
+// Save: write to localStorage (instant) AND to server file (async, fire-and-forget)
+function saveState() {
+  localStorage.setItem('juggernaut_state', JSON.stringify(state));
+  // Async save to file — non-blocking, no error shown to user
+  fetch('/api/data', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(state),
+  }).catch(() => {}); // silently fail if server is down
+}
+
+// ── Setup Screen ──
+
+const setupInputs = {};
+LIFTS.forEach(lift => {
+  const input = document.getElementById('setup-' + lift);
+  const wmSpan = document.getElementById('wm-' + lift);
+  setupInputs[lift] = { input, wmSpan };
+
+  input.addEventListener('input', () => {
+    const val = parseFloat(input.value);
+    if (val > 0) {
+      wmSpan.textContent = 'WM: ' + round5(val * 0.9);
+    } else {
+      wmSpan.textContent = 'WM: —';
+    }
+  });
+});
+
+document.getElementById('startBtn').addEventListener('click', () => {
+  let valid = true;
+  LIFTS.forEach(lift => {
+    const val = parseFloat(setupInputs[lift].input.value);
+    if (!val || val <= 0) valid = false;
+  });
+  if (!valid) { alert('Please enter a 1RM for all four lifts.'); return; }
+
+  LIFTS.forEach(lift => {
+    const rm = parseFloat(setupInputs[lift].input.value);
+    state.lifts[lift].rm = rm;
+    state.lifts[lift].wm = round5(rm * 0.9);
+  });
+
+  state.frequency = parseInt(document.querySelector('input[name="frequency"]:checked').value);
+  state.incrementOption = document.querySelector('input[name="increment"]:checked').value;
+  state.setup = true;
+  state.currentWave = 0;
+  state.currentPhase = 0;
+  state.cycle = 1;
+
+  // Snapshot initial WM
+  const snap = { date: new Date().toISOString().slice(0, 10), cycle: 1, wave: 0 };
+  LIFTS.forEach(l => snap[l] = state.lifts[l].wm);
+  state.wmHistory.push(snap);
+
+  saveState();
+  showApp();
+});
+
+// ── Navigation ──
+
+function showApp() {
+  if (!state.setup) {
+    document.getElementById('setupScreen').classList.add('active');
+    document.getElementById('mainNav').style.display = 'none';
+    document.getElementById('trainingScreen').classList.remove('active');
+    document.getElementById('historyScreen').classList.remove('active');
+    document.getElementById('settingsScreen').classList.remove('active');
+    return;
+  }
+
+  document.getElementById('setupScreen').classList.remove('active');
+  document.getElementById('mainNav').style.display = 'flex';
+  showScreen('training');
+}
+
+function showScreen(name) {
+  ['training', 'history', 'settings'].forEach(s => {
+    document.getElementById(s + 'Screen').classList.toggle('active', s === name);
+  });
+  document.querySelectorAll('#mainNav .nav-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.screen === name);
+  });
+
+  if (name === 'training') renderTraining();
+  if (name === 'history') renderHistory();
+  if (name === 'settings') renderSettings();
+}
+
+document.querySelectorAll('#mainNav .nav-btn').forEach(btn => {
+  btn.addEventListener('click', () => showScreen(btn.dataset.screen));
+});
+
+// ── Training Screen ──
+
+function renderTraining() {
+  const wave = state.currentWave;
+  const phase = state.currentPhase;
+
+  // Wave header
+  document.getElementById('waveTitle').textContent = WAVE_NAMES[wave];
+  document.getElementById('waveDetail').textContent =
+    'Wave ' + (wave + 1) + ' of 4 · Cycle ' + state.cycle;
+
+  // Phase tabs
+  const deload = hasDeload();
+  const tabs = document.querySelectorAll('#phaseTabs .phase-tab');
+  tabs.forEach(tab => {
+    const p = parseInt(tab.dataset.phase);
+    tab.classList.toggle('active', p === phase);
+    tab.classList.toggle('completed-phase', p < phase);
+    tab.classList.toggle('future-phase', p > phase);
+    // Hide deload tab when frequency is 2
+    if (p === 3) tab.style.display = deload ? '' : 'none';
+  });
+
+  // Render day cards
+  renderDayCards(wave, phase);
+
+  // Progression area
+  renderProgression(wave, phase);
+}
+
+function getSetsForPhase(wave, phase) {
+  const phaseKey = PHASE_KEYS[phase];
+  return PROGRAM[phaseKey][wave];
+}
+
+function renderDayCards(wave, phase) {
+  const container = document.getElementById('dayCards');
+  container.innerHTML = '';
+
+  const sets = getSetsForPhase(wave, phase);
+
+  LIFTS.forEach(lift => {
+    const wm = state.lifts[lift].wm;
+    const card = document.createElement('div');
+    card.className = 'day-card';
+
+    // Header
+    const header = document.createElement('div');
+    header.className = 'day-card-header';
+    header.innerHTML = `<h3>${LIFT_NAMES[lift]}</h3><span class="working-max">WM: ${wm}</span>`;
+    card.appendChild(header);
+
+    // Table
+    const table = document.createElement('table');
+    table.className = 'set-table';
+
+    const thead = document.createElement('thead');
+    thead.innerHTML = '<tr><th>Set</th><th>Weight</th><th>Reps</th></tr>';
+    table.appendChild(thead);
+
+    const tbody = document.createElement('tbody');
+    let setNum = 1;
+
+    sets.forEach(group => {
+      const weight = round5(wm * group.pct);
+      const pctLabel = Math.round(group.pct * 100) + '%';
+
+      for (let s = 0; s < group.sets; s++) {
+        const tr = document.createElement('tr');
+
+        if (group.amap) {
+          tr.className = 'amap-row';
+          const amapKey = state.cycle + '-' + wave + '-' + lift;
+          const logged = state.amrapLog[amapKey];
+
+          if (logged) {
+            tr.innerHTML = `
+              <td>${setNum}</td>
+              <td>${weight} <span style="font-size:10px;color:var(--color-gray-50)">(${pctLabel})</span></td>
+              <td><span class="amap-logged">${logged.reps}</span></td>`;
+            tbody.appendChild(tr);
+
+            // Projected max display
+            const pmTr = document.createElement('tr');
+            const cappedNote = logged.reps > 10 ? ' (capped at 10 reps)' : '';
+            pmTr.innerHTML = `<td colspan="3"><span class="projected-max">Est. 1RM: ${logged.projectedMax} lbs${cappedNote}</span></td>`;
+            tbody.appendChild(pmTr);
+          } else {
+            const inputId = 'amap-' + lift;
+            tr.innerHTML = `
+              <td>${setNum}</td>
+              <td>${weight} <span style="font-size:10px;color:var(--color-gray-50)">(${pctLabel})</span></td>
+              <td><input type="number" class="amap-input" id="${inputId}" min="1" max="30" placeholder="AMAP" data-lift="${lift}" data-weight="${weight}"></td>`;
+            tbody.appendChild(tr);
+          }
+        } else {
+          // Check if this is the last set group of accumulation/intensification (the "work" sets)
+          const isWork = (phase <= 1 && group === sets[sets.length - 1]);
+          if (phase === 3) {
+            // Deload — lighter styling
+            tr.className = 'warmup-row';
+          }
+
+          tr.innerHTML = `
+            <td>${setNum}</td>
+            <td>${weight} <span style="font-size:10px;color:var(--color-gray-50)">(${pctLabel})</span></td>
+            <td>${group.reps}</td>`;
+          tbody.appendChild(tr);
+        }
+        setNum++;
+      }
+    });
+
+    table.appendChild(tbody);
+    card.appendChild(table);
+
+    // AMAP log button
+    if (phase === 2) {
+      const amapKey = state.cycle + '-' + wave + '-' + lift;
+      const logged = state.amrapLog[amapKey];
+      const footer = document.createElement('div');
+      footer.style.cssText = 'padding:8px 12px;display:flex;justify-content:flex-end;gap:8px;';
+
+      if (logged) {
+        const editBtn = document.createElement('button');
+        editBtn.className = 'btn btn-sm btn-outline';
+        editBtn.textContent = 'Edit';
+        editBtn.addEventListener('click', () => {
+          delete state.amrapLog[amapKey];
+          // Remove last PR entry for this lift/wave/cycle
+          state.prHistory[lift] = state.prHistory[lift].filter(
+            e => !(e.cycle === state.cycle && e.wave === wave)
+          );
+          saveState();
+          renderTraining();
+        });
+        footer.appendChild(editBtn);
+      } else {
+        const logBtn = document.createElement('button');
+        logBtn.className = 'btn btn-sm';
+        logBtn.textContent = 'Log Reps';
+        logBtn.addEventListener('click', () => {
+          const input = document.getElementById('amap-' + lift);
+          const reps = parseInt(input.value);
+          if (!reps || reps < 1) { alert('Enter the reps you performed.'); return; }
+          if (reps > 30) { alert('Max 30 reps. If you hit 30+, the weight is too light.'); return; }
+          const weight = parseInt(input.dataset.weight);
+          const pm = projectedMax(weight, reps);
+          state.amrapLog[amapKey] = { weight, reps, projectedMax: pm };
+          state.prHistory[lift].push({
+            date: new Date().toISOString().slice(0, 10),
+            cycle: state.cycle,
+            wave: wave,
+            weight: weight,
+            reps: reps,
+            projectedMax: pm,
+          });
+          saveState();
+          renderTraining();
+        });
+        footer.appendChild(logBtn);
+      }
+      card.appendChild(footer);
+    }
+
+    container.appendChild(card);
+  });
+}
+
+function renderProgression(wave, phase) {
+  const area = document.getElementById('progressionArea');
+  area.innerHTML = '';
+
+  // Show progression controls on deload phase
+  if (phase === 3) {
+    const box = document.createElement('div');
+    box.className = 'progression-box';
+    box.innerHTML = `<h3>Deload Week</h3>
+      <p style="font-size:13px;margin-bottom:var(--space-md);">Use the working max from the wave you just completed, not the upcoming adjusted max.</p>
+      <button class="btn" id="completeWaveBtn">Complete Wave & Progress</button>`;
+    area.appendChild(box);
+
+    document.getElementById('completeWaveBtn').addEventListener('click', completeWave);
+    return;
+  }
+
+  // On realization, check if all AMAP sets are logged
+  if (phase === 2) {
+    const allLogged = LIFTS.every(lift => state.amrapLog[state.cycle + '-' + wave + '-' + lift]);
+    if (allLogged) {
+      // Show preview of new maxes
+      const box = document.createElement('div');
+      box.className = 'progression-box';
+      let html = '<h3>Wave Complete — New Working Maxes</h3><div class="new-maxes">';
+
+      const standard = WAVE_STANDARDS[wave];
+      LIFTS.forEach(lift => {
+        const log = state.amrapLog[state.cycle + '-' + wave + '-' + lift];
+        const repsOver = Math.min(Math.max(log.reps - standard, 0), 10);
+        const inc = getIncrement(lift, state.incrementOption);
+        const newWm = roundWM(state.lifts[lift].wm + (repsOver * inc));
+        const delta = newWm - state.lifts[lift].wm;
+        html += `<div class="max-line">${LIFT_NAMES[lift]}: ${state.lifts[lift].wm} → ${newWm}`;
+        if (delta > 0) html += ` <span class="delta">(+${delta})</span>`;
+        html += `</div>`;
+      });
+
+      if (hasDeload()) {
+        html += '</div><button class="btn" style="margin-top:var(--space-sm);" id="advanceToDeloadBtn">Advance to Deload</button>';
+      } else {
+        html += '</div><button class="btn" style="margin-top:var(--space-sm);" id="advanceToDeloadBtn">Complete Wave & Progress</button>';
+      }
+      box.innerHTML = html;
+      area.appendChild(box);
+
+      document.getElementById('advanceToDeloadBtn').addEventListener('click', () => {
+        if (hasDeload()) {
+          state.currentPhase = 3;
+          saveState();
+          renderTraining();
+        } else {
+          completeWave();
+        }
+      });
+    }
+  }
+
+  // Phase navigation buttons
+  if (phase < 3) {
+    const nav = document.createElement('div');
+    nav.style.cssText = 'display:flex;justify-content:space-between;margin-top:var(--space-md);';
+
+    if (phase > 0) {
+      const prevBtn = document.createElement('button');
+      prevBtn.className = 'btn btn-sm btn-outline';
+      prevBtn.textContent = '← Previous Phase';
+      prevBtn.addEventListener('click', () => {
+        state.currentPhase = phase - 1;
+        saveState();
+        renderTraining();
+      });
+      nav.appendChild(prevBtn);
+    } else {
+      nav.appendChild(document.createElement('span'));
+    }
+
+    if (phase < 2) {
+      const nextBtn = document.createElement('button');
+      nextBtn.className = 'btn btn-sm';
+      nextBtn.textContent = 'Next Phase →';
+      nextBtn.addEventListener('click', () => {
+        state.currentPhase = phase + 1;
+        saveState();
+        renderTraining();
+      });
+      nav.appendChild(nextBtn);
+    } else if (phase === 2) {
+      const allLogged = LIFTS.every(lift => state.amrapLog[state.cycle + '-' + wave + '-' + lift]);
+      if (!allLogged) {
+        const hint = document.createElement('span');
+        hint.style.cssText = 'font-size:11px;font-style:italic;color:var(--color-warm-gray);align-self:center;';
+        hint.textContent = 'Log all AMAP sets to advance';
+        nav.appendChild(hint);
+      }
+    }
+
+    area.appendChild(nav);
+  }
+}
+
+function completeWave() {
+  const wave = state.currentWave;
+  const standard = WAVE_STANDARDS[wave];
+
+  // Check if any AMAP data exists for this wave
+  const anyLogged = LIFTS.some(lift => state.amrapLog[state.cycle + '-' + wave + '-' + lift]);
+  if (!anyLogged) {
+    if (!confirm('No AMAP sets were logged for this wave. Complete with zero progression?')) return;
+  }
+
+  // Update working maxes
+  LIFTS.forEach(lift => {
+    const amapKey = state.cycle + '-' + wave + '-' + lift;
+    const log = state.amrapLog[amapKey];
+    if (log) {
+      const repsOver = Math.min(Math.max(log.reps - standard, 0), 10);
+      const inc = getIncrement(lift, state.incrementOption);
+      state.lifts[lift].wm = roundWM(state.lifts[lift].wm + (repsOver * inc));
+    }
+  });
+
+  // Snapshot new WM (labeled with the completed wave, before advancing counters)
+  const snap = { date: new Date().toISOString().slice(0, 10), cycle: state.cycle, completedWave: wave };
+  LIFTS.forEach(l => snap[l] = state.lifts[l].wm);
+  state.wmHistory.push(snap);
+
+  // Advance wave
+  if (wave < 3) {
+    state.currentWave = wave + 1;
+    state.currentPhase = 0;
+  } else {
+    // Completed all 4 waves — new cycle
+    state.currentWave = 0;
+    state.currentPhase = 0;
+    state.cycle += 1;
+  }
+
+  saveState();
+  renderTraining();
+}
+
+// Phase tab clicks
+document.querySelectorAll('#phaseTabs .phase-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    const p = parseInt(tab.dataset.phase);
+    if (p === 3 && !hasDeload()) return;
+    state.currentPhase = p;
+    saveState();
+    renderTraining();
+  });
+});
+
+// ── History Screen ──
+
+function renderHistory() {
+  const container = document.getElementById('historyContent');
+  container.innerHTML = '';
+
+  let hasAny = false;
+
+  LIFTS.forEach(lift => {
+    const entries = state.prHistory[lift];
+    if (!entries || entries.length === 0) return;
+    hasAny = true;
+
+    const best = entries.reduce((a, b) => a.projectedMax >= b.projectedMax ? a : b, entries[0]);
+
+    const section = document.createElement('div');
+    section.className = 'history-lift';
+
+    section.innerHTML = `
+      <div class="history-lift-header">
+        <h3>${LIFT_NAMES[lift]}</h3>
+        <span class="best-est">Best Est. 1RM: ${best.projectedMax} lbs</span>
+      </div>
+      <table class="history-table">
+        <thead><tr><th>Date</th><th>Wave</th><th>Weight</th><th>Reps</th><th>Est. 1RM</th></tr></thead>
+        <tbody>
+          ${entries.slice().reverse().map(e => {
+            const isBest = e.projectedMax === best.projectedMax;
+            return `<tr class="${isBest ? 'best-row' : ''}">
+              <td>${e.date}</td>
+              <td>${WAVE_NAMES[e.wave]}</td>
+              <td>${e.weight}</td>
+              <td>${e.reps}</td>
+              <td>${e.projectedMax}</td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>`;
+
+    container.appendChild(section);
+  });
+
+  if (!hasAny) {
+    container.innerHTML = '<div class="empty-state">No records yet. Complete a Realization phase to log your first AMAP set.</div>';
+  }
+}
+
+// ── Settings Screen ──
+
+function renderSettings() {
+  LIFTS.forEach(lift => {
+    document.getElementById('settings-' + lift).value = state.lifts[lift].wm;
+  });
+  document.getElementById('settings-frequency').value = state.frequency;
+  document.getElementById('settings-increment').value = state.incrementOption;
+}
+
+document.getElementById('saveMaxesBtn').addEventListener('click', () => {
+  LIFTS.forEach(lift => {
+    const val = parseFloat(document.getElementById('settings-' + lift).value);
+    if (val > 0) state.lifts[lift].wm = round5(val);
+  });
+  saveState();
+  alert('Working maxes updated.');
+});
+
+document.getElementById('saveOptionsBtn').addEventListener('click', () => {
+  state.frequency = parseInt(document.getElementById('settings-frequency').value);
+  state.incrementOption = document.getElementById('settings-increment').value;
+  saveState();
+  alert('Options saved.');
+});
+
+document.querySelectorAll('[data-reset]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const lift = btn.dataset.reset;
+    if (!confirm('Reset ' + LIFT_NAMES[lift] + ' working max to 90% of current?')) return;
+    state.lifts[lift].wm = round5(state.lifts[lift].wm * 0.9);
+    saveState();
+    renderSettings();
+  });
+});
+
+document.getElementById('resetAllBtn').addEventListener('click', () => {
+  if (!confirm('This will erase all data. Are you sure?')) return;
+  if (!confirm('Really? This cannot be undone.')) return;
+  localStorage.removeItem('juggernaut_state');
+  state = JSON.parse(JSON.stringify(DEFAULT_STATE));
+  showApp();
+});
+
+// ── Export / Import ──
+
+document.getElementById('exportBtn').addEventListener('click', () => {
+  const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'juggernaut-backup-' + new Date().toISOString().slice(0, 10) + '.json';
+  a.click();
+  URL.revokeObjectURL(url);
+});
+
+document.getElementById('importBtn').addEventListener('click', () => {
+  document.getElementById('importFile').click();
+});
+
+document.getElementById('importFile').addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    try {
+      const imported = JSON.parse(ev.target.result);
+      if (!imported.lifts || !imported.setup) {
+        alert('Invalid backup file — missing required fields.');
+        return;
+      }
+      if (!confirm('This will replace all current data. Continue?')) return;
+      state = imported;
+      saveState();
+      showApp();
+      alert('Data imported successfully.');
+    } catch (err) {
+      alert('Failed to parse file: ' + err.message);
+    }
+  };
+  reader.readAsText(file);
+  e.target.value = ''; // reset input
+});
+
+// ── Init ──
+
+showApp();
+syncFromServer();
+
+</script>
+</body>
+</html>
