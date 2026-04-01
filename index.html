@@ -757,7 +757,7 @@ body {
 
     <div class="settings-group">
       <h3>Data Backup</h3>
-      <p class="hint" style="margin-bottom:var(--space-sm);">All data is stored in your browser's localStorage. Export regularly to avoid data loss.</p>
+      <p class="hint" style="margin-bottom:var(--space-sm);">Data is saved to both your browser and a local file (juggernaut-data.json) when the server is running. Export as an additional backup.</p>
       <div class="btn-row">
         <button class="btn btn-sm btn-outline" id="exportBtn">Export JSON</button>
         <button class="btn btn-sm btn-outline" id="importBtn">Import JSON</button>
@@ -886,6 +886,7 @@ const DEFAULT_STATE = {
   amrapLog: {},   // key: "cycle-wave-lift" → { weight, reps, projectedMax }
   prHistory: { bench: [], squat: [], military: [], deadlift: [] },
   wmHistory: [],
+  lastSaved: null, // ISO timestamp — used to detect divergence between localStorage and server file
   setup: false,
 };
 
@@ -923,20 +924,34 @@ function loadState() {
   return JSON.parse(JSON.stringify(DEFAULT_STATE));
 }
 
+// Guard: once the user interacts with setup, don't let syncFromServer overwrite
+let userHasInteracted = false;
+
 // On startup, also fetch from server file — if it has data and localStorage doesn't,
-// adopt the server file as the source of truth
+// adopt the server file as the source of truth.
+// If both have data, compare timestamps and warn if they've diverged.
 async function syncFromServer() {
   try {
     const resp = await fetch('/api/data');
     if (!resp.ok) return;
     const serverData = await resp.json();
-    if (serverData && serverData.setup) {
-      // Server file has real data
-      if (!state.setup) {
-        // localStorage was empty — adopt server data
-        state = migrateState(serverData);
-        localStorage.setItem('juggernaut_state', JSON.stringify(state));
-        showApp();
+    if (!serverData || !serverData.setup) return; // server file is empty
+
+    if (!state.setup) {
+      // localStorage was empty — adopt server data (unless user started setup)
+      if (userHasInteracted) return;
+      state = migrateState(serverData);
+      localStorage.setItem('juggernaut_state', JSON.stringify(state));
+      showApp();
+    } else if (state.lastSaved && serverData.lastSaved) {
+      // Both stores have data — check for divergence
+      const localTime = new Date(state.lastSaved).getTime();
+      const serverTime = new Date(serverData.lastSaved).getTime();
+      if (serverTime > localTime) {
+        console.warn('Server file is newer than localStorage. Possible divergence.');
+      } else if (localTime > serverTime + 60000) {
+        // localStorage is more than 1 minute ahead — file saves may be failing
+        console.warn('localStorage is ahead of server file. File saves may have failed.');
       }
     }
   } catch (e) {
@@ -947,6 +962,7 @@ async function syncFromServer() {
 
 // Save: write to localStorage (instant) AND to server file (async, fire-and-forget)
 function saveState() {
+  state.lastSaved = new Date().toISOString();
   localStorage.setItem('juggernaut_state', JSON.stringify(state));
   // Async save to file — non-blocking, no error shown to user
   fetch('/api/data', {
@@ -965,6 +981,7 @@ LIFTS.forEach(lift => {
   setupInputs[lift] = { input, wmSpan };
 
   input.addEventListener('input', () => {
+    userHasInteracted = true;
     const val = parseFloat(input.value);
     if (val > 0) {
       wmSpan.textContent = 'WM: ' + round5(val * 0.9);
@@ -1446,8 +1463,8 @@ document.querySelectorAll('[data-reset]').forEach(btn => {
 document.getElementById('resetAllBtn').addEventListener('click', () => {
   if (!confirm('This will erase all data. Are you sure?')) return;
   if (!confirm('Really? This cannot be undone.')) return;
-  localStorage.removeItem('juggernaut_state');
   state = JSON.parse(JSON.stringify(DEFAULT_STATE));
+  saveState(); // clears both localStorage AND server file
   showApp();
 });
 
@@ -1479,7 +1496,7 @@ document.getElementById('importFile').addEventListener('change', (e) => {
         return;
       }
       if (!confirm('This will replace all current data. Continue?')) return;
-      state = imported;
+      state = migrateState(imported);
       saveState();
       showApp();
       alert('Data imported successfully.');

@@ -39,8 +39,11 @@ class JuggernautHandler(SimpleHTTPRequestHandler):
             try:
                 # Validate it's real JSON before writing
                 data = json.loads(body)
-                with open(DATA_FILE, 'w') as f:
+                # Atomic write: write to temp file, then rename
+                tmp_file = DATA_FILE + '.tmp'
+                with open(tmp_file, 'w') as f:
                     json.dump(data, f, indent=2)
+                os.replace(tmp_file, DATA_FILE)  # atomic on POSIX
                 self.send_response(200)
                 self.send_header('Content-Type', 'application/json')
                 self.end_headers()
@@ -62,7 +65,7 @@ class JuggernautHandler(SimpleHTTPRequestHandler):
 if __name__ == '__main__':
     port = int(sys.argv[1]) if len(sys.argv) > 1 else 8000
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
-    server = HTTPServer(('', port), JuggernautHandler)
+    server = HTTPServer(('127.0.0.1', port), JuggernautHandler)
     print(f'Juggernaut server running on http://localhost:{port}')
     try:
         server.serve_forever()
