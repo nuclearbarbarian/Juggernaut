@@ -806,8 +806,21 @@ body {
     </div>
 
     <div class="settings-group">
+      <h3>Cloud Sync</h3>
+      <p class="hint" style="margin-bottom:var(--space-sm);">Syncs your data across devices via a private GitHub Gist. Enter the token once per device — it stays in your browser and never touches the codebase.</p>
+      <div class="settings-row">
+        <label>GitHub Token</label>
+        <input type="password" id="settings-token" placeholder="github_pat_..." style="font-family:var(--font-mono);font-size:12px;padding:5px 8px;border:1px solid var(--color-gray-30);background:var(--color-newsprint);width:200px;">
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-sm btn-outline" id="saveTokenBtn">Save Token</button>
+        <span id="syncStatus" style="font-family:var(--font-mono);font-size:10px;color:var(--color-warm-gray);align-self:center;"></span>
+      </div>
+    </div>
+
+    <div class="settings-group">
       <h3>Data Backup</h3>
-      <p class="hint" style="margin-bottom:var(--space-sm);">Data is saved to both your browser and a local file (juggernaut-data.json) when the server is running. Export as an additional backup.</p>
+      <p class="hint" style="margin-bottom:var(--space-sm);">Data is saved to your browser, a local file (when the server is running), and your private Gist (when a token is set). Export as an additional backup.</p>
       <div class="btn-row">
         <button class="btn btn-sm btn-outline" id="exportBtn">Export JSON</button>
         <button class="btn btn-sm btn-outline" id="importBtn">Import JSON</button>
@@ -1010,16 +1023,84 @@ async function syncFromServer() {
   }
 }
 
-// Save: write to localStorage (instant) AND to server file (async, fire-and-forget)
+// ── Gist Sync ──
+
+const GIST_ID = 'bf448b7a8659eec590c2d2c344dad42f';
+const GIST_FILENAME = 'juggernaut-data.json';
+
+function getToken() { return localStorage.getItem('juggernaut_gh_token') || ''; }
+function setToken(t) { localStorage.setItem('juggernaut_gh_token', t); }
+function hasToken() { return getToken().length > 0; }
+
+// Save to Gist (async, non-blocking)
+function saveToGist(data) {
+  const token = getToken();
+  if (!token) return;
+  fetch('https://api.github.com/gists/' + GIST_ID, {
+    method: 'PATCH',
+    headers: {
+      'Authorization': 'Bearer ' + token,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      files: { [GIST_FILENAME]: { content: JSON.stringify(data, null, 2) } }
+    }),
+  }).catch(() => {}); // silently fail — localStorage is primary
+}
+
+// Load from Gist (async)
+async function loadFromGist() {
+  const token = getToken();
+  if (!token) return null;
+  try {
+    const resp = await fetch('https://api.github.com/gists/' + GIST_ID, {
+      headers: { 'Authorization': 'Bearer ' + token },
+    });
+    if (!resp.ok) return null;
+    const gist = await resp.json();
+    const file = gist.files && gist.files[GIST_FILENAME];
+    if (!file || !file.content) return null;
+    return JSON.parse(file.content);
+  } catch (e) { return null; }
+}
+
+// On startup: sync from Gist if localStorage is empty or Gist is newer
+async function syncFromGist() {
+  const gistData = await loadFromGist();
+  if (!gistData || !gistData.setup) return;
+
+  if (!state.setup) {
+    // localStorage empty — adopt Gist data (unless user started setup)
+    if (userHasInteracted) return;
+    state = migrateState(gistData);
+    localStorage.setItem('juggernaut_state', JSON.stringify(state));
+    showApp();
+  } else if (state.lastSaved && gistData.lastSaved) {
+    // Both have data — if Gist is newer, adopt it
+    const localTime = new Date(state.lastSaved).getTime();
+    const gistTime = new Date(gistData.lastSaved).getTime();
+    if (gistTime > localTime) {
+      state = migrateState(gistData);
+      localStorage.setItem('juggernaut_state', JSON.stringify(state));
+      showApp();
+    }
+  }
+}
+
+// ── Save (all layers) ──
+
+// Save: write to localStorage (instant), server file (async), and Gist (async)
 function saveState() {
   state.lastSaved = new Date().toISOString();
   localStorage.setItem('juggernaut_state', JSON.stringify(state));
-  // Async save to file — non-blocking, no error shown to user
+  // Async save to local file — non-blocking
   fetch('/api/data', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(state),
   }).catch(() => {}); // silently fail if server is down
+  // Async save to Gist — non-blocking
+  saveToGist(state);
 }
 
 // ── Setup Screen ──
@@ -1678,6 +1759,20 @@ function renderSettings() {
   });
   document.getElementById('settings-frequency').value = state.frequency;
   document.getElementById('settings-increment').value = state.incrementOption;
+
+  // Token status
+  const tokenInput = document.getElementById('settings-token');
+  const statusEl = document.getElementById('syncStatus');
+  if (hasToken()) {
+    tokenInput.value = '';
+    tokenInput.placeholder = '••••••• (saved)';
+    statusEl.textContent = 'Cloud sync active';
+    statusEl.style.color = 'var(--color-green)';
+  } else {
+    tokenInput.placeholder = 'github_pat_...';
+    statusEl.textContent = 'No token set';
+    statusEl.style.color = 'var(--color-warm-gray)';
+  }
 }
 
 document.getElementById('saveMaxesBtn').addEventListener('click', () => {
@@ -1694,6 +1789,37 @@ document.getElementById('saveOptionsBtn').addEventListener('click', () => {
   state.incrementOption = document.getElementById('settings-increment').value;
   saveState();
   alert('Options saved.');
+});
+
+document.getElementById('saveTokenBtn').addEventListener('click', async () => {
+  const input = document.getElementById('settings-token');
+  const val = input.value.trim();
+  if (!val && hasToken()) {
+    // User submitted empty — keep existing token
+    alert('Token already saved. Clear the field and save again to remove it.');
+    return;
+  }
+  if (!val) { alert('Paste your GitHub token first.'); return; }
+
+  // Validate by trying to read the Gist
+  const statusEl = document.getElementById('syncStatus');
+  statusEl.textContent = 'Verifying...';
+  statusEl.style.color = 'var(--color-warm-gray)';
+  try {
+    const resp = await fetch('https://api.github.com/gists/' + GIST_ID, {
+      headers: { 'Authorization': 'Bearer ' + val },
+    });
+    if (!resp.ok) throw new Error('Status ' + resp.status);
+    setToken(val);
+    // Push current state to Gist immediately
+    if (state.setup) saveToGist(state);
+    renderSettings();
+    alert('Token saved. Cloud sync is active.');
+  } catch (e) {
+    statusEl.textContent = 'Token invalid';
+    statusEl.style.color = 'var(--color-red)';
+    alert('Could not verify token. Check that it has Gist read/write permission.');
+  }
 });
 
 document.querySelectorAll('[data-reset]').forEach(btn => {
@@ -1758,6 +1884,7 @@ document.getElementById('importFile').addEventListener('change', (e) => {
 
 showApp();
 syncFromServer();
+syncFromGist();
 
 </script>
 </body>
