@@ -717,6 +717,19 @@ body {
       </div>
     </div>
 
+    <div class="setup-section" style="border-style:dashed;">
+      <h2>Sync From Another Device?</h2>
+      <p class="hint" style="margin-bottom:var(--space-sm);">If you already set up on another device, paste your GitHub token to pull your data.</p>
+      <div class="form-row">
+        <label>GitHub Token</label>
+        <input type="password" id="setup-token" placeholder="github_pat_..." style="font-family:var(--font-mono);font-size:12px;padding:5px 8px;border:1px solid var(--color-gray-30);background:var(--color-newsprint);flex:1;min-width:0;">
+      </div>
+      <div style="display:flex;align-items:center;gap:var(--space-sm);margin-top:var(--space-sm);">
+        <button class="btn btn-sm btn-outline" id="setupSyncBtn">Sync</button>
+        <span id="setupSyncStatus" style="font-family:var(--font-mono);font-size:10px;color:var(--color-warm-gray);"></span>
+      </div>
+    </div>
+
     <div style="text-align:center; margin-top:var(--space-lg);">
       <button class="btn" id="startBtn">Begin Training</button>
     </div>
@@ -1150,6 +1163,44 @@ document.getElementById('startBtn').addEventListener('click', () => {
 
   saveState();
   showApp();
+});
+
+// ── Setup: Sync from another device ──
+document.getElementById('setupSyncBtn').addEventListener('click', async () => {
+  const tokenVal = document.getElementById('setup-token').value.trim();
+  const statusEl = document.getElementById('setupSyncStatus');
+  if (!tokenVal) { alert('Paste your GitHub token first.'); return; }
+
+  statusEl.textContent = 'Verifying...';
+  statusEl.style.color = 'var(--color-warm-gray)';
+  try {
+    const resp = await fetch('https://api.github.com/gists/' + GIST_ID, {
+      headers: { 'Authorization': 'Bearer ' + tokenVal },
+    });
+    if (!resp.ok) throw new Error('Status ' + resp.status);
+    const gist = await resp.json();
+    const file = gist.files && gist.files[GIST_FILENAME];
+    if (!file || !file.content) throw new Error('No data in Gist');
+
+    const gistData = JSON.parse(file.content);
+    if (!gistData.setup) {
+      statusEl.textContent = 'Gist has no training data yet.';
+      statusEl.style.color = 'var(--color-red)';
+      return;
+    }
+
+    // Save token and adopt Gist data
+    setToken(tokenVal);
+    state = migrateState(gistData);
+    localStorage.setItem('juggernaut_state', JSON.stringify(state));
+    statusEl.textContent = 'Synced!';
+    statusEl.style.color = 'var(--color-green)';
+    showApp();
+  } catch (e) {
+    statusEl.textContent = 'Failed — check token';
+    statusEl.style.color = 'var(--color-red)';
+    alert('Could not sync. Check that the token has Gist read/write permission.');
+  }
 });
 
 // ── Navigation ──
