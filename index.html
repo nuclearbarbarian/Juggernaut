@@ -1514,11 +1514,15 @@ function renderDayCards(wave, phase) {
     container.appendChild(card);
   });
 
-  // "Mark Day Complete" button — placed after the grid, not inside it
+  // Session tracking — placed after the grid, not inside it
   const today = new Date().toISOString().slice(0, 10);
-  const alreadyLogged = state.completedDays.some(d =>
-    d.date === today && d.wave === wave && d.phase === phase
+  const sessionsPerWeek = state.frequency || 4;
+  const sessionsThisPhase = (state.completedDays || []).filter(d =>
+    d.wave === wave && d.phase === phase && d.cycle === state.cycle
   );
+  const sessionNum = sessionsThisPhase.length + 1;
+  const alreadyLoggedToday = sessionsThisPhase.some(d => d.date === today);
+  const allSessionsDone = sessionsThisPhase.length >= sessionsPerWeek;
 
   // Remove any existing mark-complete bar
   const oldBar = container.parentNode.querySelector('.mark-complete-bar');
@@ -1526,18 +1530,32 @@ function renderDayCards(wave, phase) {
 
   const bar = document.createElement('div');
   bar.className = 'mark-complete-bar';
-  if (alreadyLogged) {
-    bar.innerHTML = '<button class="btn completed" disabled>✓ Day Completed</button>';
+
+  // Session label
+  const label = document.createElement('div');
+  label.style.cssText = 'font-family:var(--font-mono);font-size:11px;text-transform:uppercase;letter-spacing:0.05em;color:var(--color-warm-gray);margin-bottom:var(--space-xs);';
+  if (allSessionsDone) {
+    label.textContent = sessionsPerWeek + ' of ' + sessionsPerWeek + ' sessions complete';
+  } else {
+    label.textContent = 'Session ' + sessionNum + ' of ' + sessionsPerWeek;
+  }
+  bar.appendChild(label);
+
+  if (alreadyLoggedToday) {
+    bar.innerHTML += '<button class="btn completed" disabled>✓ Session ' + (sessionNum - 1) + ' Completed</button>';
+  } else if (allSessionsDone) {
+    bar.innerHTML += '<button class="btn completed" disabled>✓ All Sessions Complete</button>';
   } else {
     const mcBtn = document.createElement('button');
     mcBtn.className = 'btn';
-    mcBtn.textContent = 'Mark Day Complete';
+    mcBtn.textContent = 'Complete Session ' + sessionNum;
     mcBtn.addEventListener('click', () => {
       state.completedDays.push({
         date: today,
         cycle: state.cycle,
         wave: wave,
         phase: phase,
+        session: sessionNum,
       });
       saveState();
       renderDayCards(wave, phase);
@@ -1941,9 +1959,11 @@ function renderCalendar() {
         const entry = completedMap[dateStr];
         const waveNames = ["10's","8's","5's","3's"];
         const phaseNames = ['Accumulation','Intensification','Realization','Deload'];
-        detailEl.textContent = dateStr + '  ·  ' +
+        let detail = dateStr + '  ·  ' +
           waveNames[entry.wave] + ' Wave  ·  ' +
           phaseNames[entry.phase] + '  ·  Cycle ' + entry.cycle;
+        if (entry.session) detail += '  ·  Session ' + entry.session;
+        detailEl.textContent = detail;
         detailEl.style.display = 'block';
       });
     }
