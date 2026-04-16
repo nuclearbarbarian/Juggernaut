@@ -631,6 +631,104 @@ body {
   font-style: italic;
 }
 
+/* ── Calendar ── */
+
+.cal-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-md);
+}
+
+.cal-nav h3 {
+  font-size: 15px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+  background: var(--color-paper);
+  border: 1px solid var(--color-gray-30);
+  padding: var(--space-sm);
+}
+
+.cal-grid .cal-header {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-warm-gray);
+  text-align: center;
+  padding: 4px 0 8px;
+}
+
+.cal-day {
+  text-align: center;
+  padding: 6px 2px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--color-gray-50);
+  cursor: default;
+  position: relative;
+  border-radius: 2px;
+}
+
+.cal-day.has-workout {
+  color: var(--color-ink);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.cal-day.has-workout::after {
+  content: '';
+  display: block;
+  width: 6px;
+  height: 6px;
+  background: var(--color-green);
+  border-radius: 50%;
+  margin: 2px auto 0;
+}
+
+.cal-day.today {
+  background: var(--color-gray-15);
+}
+
+.cal-day.empty {
+  visibility: hidden;
+}
+
+.cal-day.selected {
+  outline: 2px solid var(--color-ink);
+}
+
+.cal-detail {
+  background: var(--color-paper);
+  border: 1px solid var(--color-gray-30);
+  padding: var(--space-sm) var(--space-md);
+  margin-top: var(--space-sm);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--color-gray-70);
+}
+
+.mark-complete-bar {
+  text-align: center;
+  margin-top: var(--space-md);
+  margin-bottom: var(--space-md);
+}
+
+.mark-complete-bar .btn.completed {
+  background: var(--color-green);
+  color: var(--color-paper);
+  border-color: var(--color-green);
+  opacity: 0.8;
+  cursor: default;
+}
+
 /* ── Responsive ── */
 
 @media (max-width: 600px) {
@@ -655,6 +753,7 @@ body {
   <!-- ═══ NAVIGATION ═══ -->
   <nav class="nav-bar" id="mainNav" style="display:none;">
     <button class="nav-btn active" data-screen="training">Training</button>
+    <button class="nav-btn" data-screen="calendar">Calendar</button>
     <button class="nav-btn" data-screen="history">Records</button>
     <button class="nav-btn" data-screen="settings">Settings</button>
   </nav>
@@ -757,6 +856,14 @@ body {
     </div>
 
     <div id="progressionArea"></div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════
+       CALENDAR SCREEN
+       ═══════════════════════════════════════════════════════ -->
+  <div id="calendarScreen" class="screen">
+    <h2 style="font-size:18px;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:var(--space-lg);text-align:center;">Training Calendar</h2>
+    <div id="calendarContent"></div>
   </div>
 
   <!-- ═══════════════════════════════════════════════════════
@@ -962,6 +1069,7 @@ const DEFAULT_STATE = {
   amrapLog: {},   // key: "cycle-wave-lift" → { weight, reps, projectedMax }
   prHistory: { bench: [], squat: [], military: [], deadlift: [] },
   wmHistory: [],
+  completedDays: [], // { date, cycle, wave, phase }
   lastSaved: null, // ISO timestamp — used to detect divergence between localStorage and server file
   setup: false,
 };
@@ -1221,7 +1329,7 @@ function showApp() {
 }
 
 function showScreen(name) {
-  ['training', 'history', 'settings'].forEach(s => {
+  ['training', 'calendar', 'history', 'settings'].forEach(s => {
     document.getElementById(s + 'Screen').classList.toggle('active', s === name);
   });
   document.querySelectorAll('#mainNav .nav-btn').forEach(btn => {
@@ -1229,6 +1337,7 @@ function showScreen(name) {
   });
 
   if (name === 'training') renderTraining();
+  if (name === 'calendar') renderCalendar();
   if (name === 'history') renderHistory();
   if (name === 'settings') renderSettings();
 }
@@ -1404,6 +1513,38 @@ function renderDayCards(wave, phase) {
 
     container.appendChild(card);
   });
+
+  // "Mark Day Complete" button — placed after the grid, not inside it
+  const today = new Date().toISOString().slice(0, 10);
+  const alreadyLogged = state.completedDays.some(d =>
+    d.date === today && d.wave === wave && d.phase === phase
+  );
+
+  // Remove any existing mark-complete bar
+  const oldBar = container.parentNode.querySelector('.mark-complete-bar');
+  if (oldBar) oldBar.remove();
+
+  const bar = document.createElement('div');
+  bar.className = 'mark-complete-bar';
+  if (alreadyLogged) {
+    bar.innerHTML = '<button class="btn completed" disabled>✓ Day Completed</button>';
+  } else {
+    const mcBtn = document.createElement('button');
+    mcBtn.className = 'btn';
+    mcBtn.textContent = 'Mark Day Complete';
+    mcBtn.addEventListener('click', () => {
+      state.completedDays.push({
+        date: today,
+        cycle: state.cycle,
+        wave: wave,
+        phase: phase,
+      });
+      saveState();
+      renderDayCards(wave, phase);
+    });
+    bar.appendChild(mcBtn);
+  }
+  container.after(bar);
 }
 
 function renderProgression(wave, phase) {
@@ -1705,6 +1846,124 @@ function pickTicks(arr, max) {
   for (let i = 0; i < arr.length; i += step) result.push(arr[i]);
   if (result[result.length - 1] !== arr[arr.length - 1]) result.push(arr[arr.length - 1]);
   return result;
+}
+
+// ── Calendar Screen ──
+
+let calViewYear = new Date().getFullYear();
+let calViewMonth = new Date().getMonth(); // 0-indexed
+
+const MONTH_NAMES = ['January','February','March','April','May','June',
+  'July','August','September','October','November','December'];
+const DAY_ABBR = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+function renderCalendar() {
+  const container = document.getElementById('calendarContent');
+  container.innerHTML = '';
+
+  // Build a set of completed dates for quick lookup
+  const completedMap = {};
+  (state.completedDays || []).forEach(d => {
+    completedMap[d.date] = d;
+  });
+
+  // Nav
+  const nav = document.createElement('div');
+  nav.className = 'cal-nav';
+  const prevBtn = document.createElement('button');
+  prevBtn.className = 'btn btn-sm btn-outline';
+  prevBtn.textContent = '←';
+  prevBtn.addEventListener('click', () => {
+    calViewMonth--;
+    if (calViewMonth < 0) { calViewMonth = 11; calViewYear--; }
+    renderCalendar();
+  });
+  const nextBtn = document.createElement('button');
+  nextBtn.className = 'btn btn-sm btn-outline';
+  nextBtn.textContent = '→';
+  nextBtn.addEventListener('click', () => {
+    calViewMonth++;
+    if (calViewMonth > 11) { calViewMonth = 0; calViewYear++; }
+    renderCalendar();
+  });
+  const title = document.createElement('h3');
+  title.textContent = MONTH_NAMES[calViewMonth] + ' ' + calViewYear;
+  nav.appendChild(prevBtn);
+  nav.appendChild(title);
+  nav.appendChild(nextBtn);
+  container.appendChild(nav);
+
+  // Grid
+  const grid = document.createElement('div');
+  grid.className = 'cal-grid';
+
+  // Day-of-week headers
+  DAY_ABBR.forEach(d => {
+    const hdr = document.createElement('div');
+    hdr.className = 'cal-header';
+    hdr.textContent = d;
+    grid.appendChild(hdr);
+  });
+
+  const firstDay = new Date(calViewYear, calViewMonth, 1).getDay();
+  const daysInMonth = new Date(calViewYear, calViewMonth + 1, 0).getDate();
+  const todayStr = new Date().toISOString().slice(0, 10);
+
+  // Empty cells before first day
+  for (let i = 0; i < firstDay; i++) {
+    const empty = document.createElement('div');
+    empty.className = 'cal-day empty';
+    grid.appendChild(empty);
+  }
+
+  // Detail area (shown below calendar when a day is tapped)
+  const detailEl = document.createElement('div');
+  detailEl.className = 'cal-detail';
+  detailEl.style.display = 'none';
+
+  // Day cells
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dateStr = calViewYear + '-' +
+      String(calViewMonth + 1).padStart(2, '0') + '-' +
+      String(d).padStart(2, '0');
+    const cell = document.createElement('div');
+    cell.className = 'cal-day';
+    cell.textContent = d;
+
+    if (dateStr === todayStr) cell.classList.add('today');
+
+    if (completedMap[dateStr]) {
+      cell.classList.add('has-workout');
+      cell.addEventListener('click', () => {
+        // Deselect others
+        grid.querySelectorAll('.cal-day.selected').forEach(c => c.classList.remove('selected'));
+        cell.classList.add('selected');
+        const entry = completedMap[dateStr];
+        const waveNames = ["10's","8's","5's","3's"];
+        const phaseNames = ['Accumulation','Intensification','Realization','Deload'];
+        detailEl.textContent = dateStr + '  ·  ' +
+          waveNames[entry.wave] + ' Wave  ·  ' +
+          phaseNames[entry.phase] + '  ·  Cycle ' + entry.cycle;
+        detailEl.style.display = 'block';
+      });
+    }
+
+    grid.appendChild(cell);
+  }
+
+  container.appendChild(grid);
+  container.appendChild(detailEl);
+
+  // Summary
+  const total = (state.completedDays || []).length;
+  const thisMonth = (state.completedDays || []).filter(d => {
+    return d.date.startsWith(calViewYear + '-' + String(calViewMonth + 1).padStart(2, '0'));
+  }).length;
+  const summary = document.createElement('div');
+  summary.style.cssText = 'font-family:var(--font-mono);font-size:11px;color:var(--color-warm-gray);text-align:center;margin-top:var(--space-md);';
+  summary.textContent = thisMonth + ' session' + (thisMonth !== 1 ? 's' : '') + ' this month  ·  ' +
+    total + ' total';
+  container.appendChild(summary);
 }
 
 // ── History Screen ──
